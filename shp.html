@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMKN9 Shop</title>
+
+<style>
+  body {font-family: Arial, sans-serif; margin:0; background:#f5f5f5; color: #333;}
+
+  header {
+    background:#222; color:white; padding:15px;
+    display:flex; align-items:center; justify-content:space-between;
+    position: sticky; top: 0; z-index: 1000;
+  }
+
+  .logo {display:flex; align-items:center; gap:10px;}
+  .logo img {width:40px; height:40px; border-radius:50%;}
+  nav a {color:white; margin:0 10px; text-decoration:none; cursor:pointer; font-weight: bold;}
+
+  .container {padding:20px; max-width: 1000px; margin: auto;}
+
+  .banner {
+    height:300px;
+    display:flex; align-items:center; justify-content:center;
+    background: #ddd; border-radius: 10px; overflow: hidden;
+  }
+  .banner img {
+    width:100%; height:100%; object-fit:cover;
+  }
+
+  .thumbnail-menu {
+    display:flex; gap:10px; justify-content:center; margin-top:10px;
+  }
+  .thumbnail-menu img {
+    width:80px; height:50px; object-fit:cover;
+    border-radius:5px; cursor:pointer; opacity:0.6;
+    border:2px solid transparent; transition: 0.3s;
+  }
+  .thumbnail-menu img.active {
+    opacity:1; border:2px solid #28a745;
+  }
+
+  .slider-controls {text-align:center; margin-top:10px;}
+  .slider-controls button { width: auto; padding: 10px 20px; background: #444; margin: 0 5px;}
+
+  .category-menu {display:flex; gap:10px; margin-bottom:15px; flex-wrap: wrap;}
+  .category-menu button {background:#007bff; width: auto; flex: 1;}
+
+  .products {
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(200px,1fr));
+    gap:20px;
+  }
+
+  .card {
+    background:white; padding:15px;
+    border-radius:10px; text-align:center;
+    box-shadow:0 2px 5px rgba(0,0,0,0.1);
+  }
+  .card img { width:100%; height:180px; object-fit:cover; border-radius:10px; }
+
+  button {
+    background:#28a745; color:white; border:none;
+    padding:10px; width:100%; margin-top:10px;
+    cursor:pointer; border-radius:5px; font-weight: bold;
+  }
+  button:hover {opacity:0.9;}
+
+  .qty-btn { display:flex; justify-content:center; gap:5px; margin-top:5px; }
+  .qty-btn button { width:30px; padding:5px; margin-top: 0; }
+
+  footer {
+    background:#222; color:white;
+    text-align:center; padding:20px; margin-top:40px;
+  }
+
+  /* Floating Boxes */
+  .cart, .login-box, .checkout-box {
+    position:fixed; right:10px;
+    background:white; padding:20px;
+    border-radius:10px; width:260px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.3);
+    z-index: 999;
+  }
+
+  .cart {bottom:10px; max-height: 300px; overflow-y: auto;}
+  .login-box {top:80px; display:none;}
+  .checkout-box {top:80px; display:none; width: 300px;}
+
+  input, select {
+    width:100%; padding:10px; margin:8px 0;
+    border: 1px solid #ccc; border-radius: 5px;
+    box-sizing: border-box;
+  }
+
+  #orderStatus {
+    margin-top: 15px;
+    padding: 10px;
+    background: #e9f7ef;
+    border-left: 5px solid #28a745;
+    display: none;
+  }
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">
+    <img src="logo.jpg" alt="Logo">
+    <h2>SMKN9 Shop</h2>
+  </div>
+  <nav>
+    <a onclick="showLogin()">Login</a>
+    <a onclick="showCheckout()">Checkout</a>
+  </nav>
+</header>
+
+<div class="container">
+  <h2>Tentang Kami</h2>
+  <p>SMKN9 Shop menyediakan aksesoris seperti gelang, kalung, dan cincin dengan harga terjangkau dan kualitas terbaik.</p>
+  <button onclick="scrollToShop()" style="width: 200px; background: #007bff;">Masuk ke Olshop</button>
+</div>
+
+<div class="container">
+  <div class="banner">
+    <img id="bannerImage" src="gelang4.jpg">
+  </div>
+  <div class="thumbnail-menu" id="thumbnailMenu"></div>
+  <div class="slider-controls">
+    <button onclick="prevImage()">Sebelumnya</button>
+    <button onclick="nextImage()">Selanjutnya</button>
+  </div>
+</div>
+
+<div class="container" id="shop">
+  <hr>
+  <h2>Koleksi Produk</h2>
+
+  <div class="category-menu">
+    <button onclick="filterCategory('all')">Semua</button>
+    <button onclick="filterCategory('Gelang')">Gelang</button>
+    <button onclick="filterCategory('Kalung')">Kalung</button>
+    <button onclick="filterCategory('Cincin')">Cincin</button>
+  </div>
+
+  <input type="text" id="search" placeholder="Cari aksesoris favoritmu..." onkeyup="searchProduct()">
+
+  <div class="products">
+    <div class="card" data-category="Gelang">
+      <img src="gelang.jpg">
+      <h3>Gelang Bulan</h3>
+      <p>Rp 8.000</p>
+      <button onclick="addToCart('Gelang Bulan', 8000)">Tambah</button>
+    </div>
+
+    <div class="card" data-category="Gelang">
+      <img src="gelang1.jpg">
+      <h3>Gelang Bunga</h3>
+      <p>Rp 8.000</p>
+      <button onclick="addToCart('Gelang Bunga', 8000)">Tambah</button>
+    </div>
+
+    <div class="card" data-category="Kalung">
+      <img src="kalung1.jpg">
+      <h3>Kalung Bunga</h3>
+      <p>Rp 12.000</p>
+      <button onclick="addToCart('Kalung Bunga', 12000)">Tambah</button>
+    </div>
+
+    <div class="card" data-category="Kalung">
+      <img src="kalung2.jpg">
+      <h3>Kalung Pita</h3>
+      <p>Rp 12.000</p>
+      <button onclick="addToCart('Kalung Pita', 12000)">Tambah</button>
+    </div>
+
+    <div class="card" data-category="Cincin">
+      <img src="cincin.jpg">
+      <h3>Cincin Putih</h3>
+      <p>Rp 5.000</p>
+      <button onclick="addToCart('Cincin Putih', 5000)">Tambah</button>
+    </div>
+
+    <div class="card" data-category="Cincin">
+      <img src="cincin5.jpg">
+      <h3>Cincin Pink</h3>
+      <p>Rp 5.000</p>
+      <button onclick="addToCart('Cincin Pink', 5000)">Tambah</button>
+    </div>
+  </div>
+</div>
+
+<div class="cart">
+  <h4 style="margin-top:0;">🛒 Keranjang</h4>
+  <ul id="cartList" style="list-style:none; padding:0; font-size:14px;"></ul>
+  <hr>
+  <p><strong>Total: Rp <span id="total">0</span></strong></p>
+</div>
+
+<div class="login-box" id="loginBox">
+  <div style="display:flex; justify-content:space-between;">
+    <h4>Login</h4>
+    <span onclick="this.parentElement.parentElement.style.display='none'" style="cursor:pointer">&times;</span>
+  </div>
+  <input type="text" id="username" placeholder="Username (admin)">
+  <input type="password" id="password" placeholder="Password (123)">
+  <button onclick="login()">Masuk</button>
+  <p id="loginStatus" style="font-size:12px; color:red;"></p>
+</div>
+
+<div class="checkout-box" id="checkoutBox">
+  <div style="display:flex; justify-content:space-between;">
+    <h4>Checkout</h4>
+    <span onclick="this.parentElement.parentElement.style.display='none'" style="cursor:pointer">&times;</span>
+  </div>
+  <input type="text" id="custName" placeholder="Nama Lengkap">
+  <input type="text" id="custAddress" placeholder="Alamat Lengkap">
+  
+  <label style="font-size: 13px;">Metode Pembayaran:</label>
+  <select id="payMethod">
+    <option value="Transfer Bank">Transfer Bank</option>
+    <option value="Dana/OVO">E-Wallet (Dana/OVO)</option>
+    <option value="COD">COD (Bayar di Tempat)</option>
+  </select>
+
+  <button onclick="processCheckout()">Konfirmasi Pembayaran</button>
+  
+  <div id="orderStatus">
+    <strong style="color: #28a745;">✓ Pesanan Berhasil</strong>
+    <p id="statusDetail" style="font-size: 12px; margin: 5px 0;"></p>
+    <p style="font-size: 11px; color: #666;">Status: <span style="color:blue">Dikemas</span></p>
+  </div>
+</div>
+
+<footer>
+  <p>&copy; 2024 SMKN9 Shop - All Rights Reserved</p>
+</footer>
+
+<script>
+let cart = [];
+let total = 0;
+let loggedIn = false;
+
+// Slider Data
+let images = ['cincinb.jpg','kalungb.jpg','gelang4.jpg'];
+let currentIndex = 0;
+
+function scrollToShop(){
+  document.getElementById('shop').scrollIntoView({behavior:'smooth'});
+}
+
+function renderThumbnails(){
+  let menu = document.getElementById('thumbnailMenu');
+  menu.innerHTML='';
+  images.forEach((img,index)=>{
+    let el=document.createElement('img');
+    el.src=img;
+    if(index===currentIndex) el.classList.add('active');
+    el.onclick=()=>{currentIndex=index; updateBanner();}
+    menu.appendChild(el);
+  });
+}
+
+function updateBanner(){
+  document.getElementById('bannerImage').src=images[currentIndex];
+  renderThumbnails();
+}
+
+function nextImage(){currentIndex=(currentIndex+1)%images.length; updateBanner();}
+function prevImage(){currentIndex=(currentIndex-1+images.length)%images.length; updateBanner();}
+
+// Filter & Search
+function filterCategory(category){
+  document.querySelectorAll('.card').forEach(card=>{
+    card.style.display=(category==='all'||card.dataset.category===category)?'block':'none';
+  });
+}
+
+function searchProduct(){
+  let input=document.getElementById('search').value.toLowerCase();
+  document.querySelectorAll('.card').forEach(card=>{
+    let title=card.querySelector('h3').textContent.toLowerCase();
+    card.style.display=title.includes(input)?'block':'none';
+  });
+}
+
+// Keranjang Logic
+function addToCart(item, price){
+  let existing = cart.find(p => p.name === item);
+  if(existing){
+    existing.qty++;
+  } else {
+    cart.push({name: item, price: price, qty: 1});
+  }
+  renderCart();
+}
+
+function renderCart(){
+  let list = document.getElementById('cartList');
+  list.innerHTML = '';
+  total = 0;
+
+  cart.forEach((item, index) => {
+    let li = document.createElement('li');
+    li.style.marginBottom = "10px";
+    li.innerHTML = `
+      ${item.name} - Rp ${item.price * item.qty}
+      <div class="qty-btn">
+        <button onclick="changeQty(${index}, -1)">-</button>
+        <span>${item.qty}</span>
+        <button onclick="changeQty(${index}, 1)">+</button>
+      </div>
+    `;
+    total += item.price * item.qty;
+    list.appendChild(li);
+  });
+  document.getElementById('total').textContent = total.toLocaleString();
+}
+
+function changeQty(index, delta){
+  cart[index].qty += delta;
+  if(cart[index].qty <= 0) cart.splice(index, 1);
+  renderCart();
+}
+
+// Auth & Checkout
+function showLogin(){
+  document.getElementById('loginBox').style.display='block';
+  document.getElementById('checkoutBox').style.display='none';
+}
+
+function login(){
+  let user = document.getElementById('username').value;
+  let pass = document.getElementById('password').value;
+  if(user === 'admin' && pass === '123'){
+    loggedIn = true;
+    alert('Login Berhasil!');
+    document.getElementById('loginBox').style.display='none';
+  } else {
+    document.getElementById('loginStatus').textContent = 'User/Pass salah!';
+  }
+}
+
+function showCheckout(){
+  if(!loggedIn){
+    alert('Silakan login terlebih dahulu!');
+    showLogin();
+    return;
+  }
+  document.getElementById('checkoutBox').style.display='block';
+  document.getElementById('loginBox').style.display='none';
+}
+
+function processCheckout(){
+  let nama = document.getElementById('custName').value;
+  let alamat = document.getElementById('custAddress').value;
+  let metode = document.getElementById('payMethod').value;
+
+  if(cart.length === 0){
+    alert('Keranjang kosong!');
+    return;
+  }
+  if(!nama || !alamat){
+    alert('Mohon lengkapi Nama dan Alamat!');
+    return;
+  }
+
+  // Tampilkan Status
+  document.getElementById('orderStatus').style.display = 'block';
+  document.getElementById('statusDetail').innerHTML = `
+    Nama: ${nama}<br>
+    Pembayaran: <b>${metode}</b><br>
+    Total: <b>Rp ${total.toLocaleString()}</b>
+  `;
+
+  alert('Pesanan kamu berhasil diproses!');
+  
+  // Reset setelah checkout
+  cart = [];
+  renderCart();
+}
+
+// Init
+updateBanner();
+</script>
+
+</body>
+</html>
